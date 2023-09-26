@@ -1,4 +1,4 @@
-#import sqlalchemy as sqlA
+# import sqlalchemy as sqlA
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session
@@ -12,23 +12,25 @@ from sqlalchemy import select
 from sqlalchemy import func
 
 
-
 Base = declarative_base()
 
-#sqlA.Column
+# sqlA.Column
+
+
 class User(Base):
     __tablename__ = "user_account"
-    
-    #atributo
+
+    # atributo
     id = Column(Integer, primary_key=True)
     name = Column(String)
     fullname = Column(String)
     address = relationship(
-    "Address", back_populates="user", cascade="all, delete-orphan"
+        "Address", back_populates="user", cascade="all, delete-orphan"
     )
+
     def __repr__(self):
         return f"User(id={self.id}, name={self.name}, fullname={self.fullname})"
-    
+
 
 class Address(Base):
     __tablename__ = "address"
@@ -41,17 +43,18 @@ class Address(Base):
     def __repr__(self):
         return f"Address (id={self.id}, email={self.email_address})"
 
+
 print(User.__tablename__)
 print(Address.__tablename__)
 
-#conexão com banco de dados
+# conexão com banco de dados
 engine = create_engine("sqlite://")
 
-#criando as classes como tabelas no banco de dados
+# criando as classes como tabelas no banco de dados
 Base.metadata.create_all(engine)
 
-#depreciado - sera removido em futuro release
-#print(engine.table_names())
+# depreciado - sera removido em futuro release
+# print(engine.table_names())
 
 
 inspetor_engine = inspect(engine)
@@ -61,17 +64,17 @@ print(inspetor_engine.default_schema_name)
 
 with Session(engine) as session:
     Luan = User(
-        name = 'Luan',
-        fullname = 'Luan Aquino',
-        address = [Address(email_address='luan@email.com')]
-        )
+        name='Luan',
+        fullname='Luan Aquino',
+        address=[Address(email_address='luan@email.com')]
+    )
     Regina = User(
-        name = 'Regina',
-        fullname = 'Regina Garcia',
-        address = [Address(email_address='regina@email.com'),
-                   Address(email_address='rgarcia@email.com')]
-        )
-    
+        name='Regina',
+        fullname='Regina Garcia',
+        address=[Address(email_address='regina@email.com'),
+                 Address(email_address='rgarcia@email.com')]
+    )
+
 # enviando para o BD (persistencia de dados)
 session.add_all([Luan, Regina])
 
@@ -92,13 +95,14 @@ print("\nrecuperando info de maneira ordenada")
 for result in session.scalars(stmt_order):
     print(result)
 
-stmt_join = select(User.fullname, Address.email_address).join_from(Address, User)
+stmt_join = select(
+    User.fullname, Address.email_address).join_from(Address, User)
 for result in session.scalars(stmt_join):
     print(result)
 
 connection = engine.connect()
 results = connection.execute(stmt_join).fetchall()
-print("\nexeccutando statement a partir da connection")
+print("\nexecutando statement a  partir da connection")
 for result in results:
     print(result)
 
@@ -106,11 +110,3 @@ stmt_count = select(func.count('*').select_from(User))
 print('total')
 for result in session.scalars(stmt_count):
     print(result)
-
-
-
-
-
-    
-
-
